@@ -34,7 +34,7 @@ const config: ForgeConfig = {
   publishers: [
     new PublisherGithub({
       repository: {
-        owner: 'datagami',
+        owner: 'kunal-ak23',
         name: 'edudron-emailer',
       },
       prerelease: false,
