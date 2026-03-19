@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'node:path';
 import * as fs from 'node:fs';
@@ -12,6 +13,8 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: 'Edudron Emailer',
+    icon: path.join(__dirname, '../../src/edudron-logo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },

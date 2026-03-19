@@ -1,22 +1,45 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import { PublisherGithub } from '@electron-forge/publisher-github';
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    name: 'Edudron Emailer',
+    icon: './src/edudron-logo',
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
+    new MakerSquirrel({
+      name: 'EdudronEmailer',
+      setupIcon: './src/edudron-logo.ico',
+    }),
+    new MakerDMG({
+      name: 'Edudron-Emailer',
+      icon: './src/edudron-logo.icns',
+    }),
+    new MakerZIP({}, ['darwin', 'win32']),
+    new MakerDeb({
+      options: { icon: './src/edudron-logo.png' },
+    }),
     new MakerRpm({}),
-    new MakerDeb({}),
+  ],
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: 'datagami',
+        name: 'edudron-emailer',
+      },
+      prerelease: false,
+      draft: true,
+    }),
   ],
   plugins: [
     new VitePlugin({

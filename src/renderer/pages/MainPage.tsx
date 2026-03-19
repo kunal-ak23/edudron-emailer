@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { EmailRow, UserProfile } from '../../shared/ipc-types';
 import CsvTable from '../components/CsvTable';
 import EmailPreview from '../components/EmailPreview';
@@ -14,6 +14,35 @@ export default function MainPage({ user, onStartSend }: MainPageProps) {
   const [delayMs, setDelayMs] = useState(1200);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewWidth, setPreviewWidth] = useState(550);
+  const isDragging = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = useCallback(() => {
+    isDragging.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current || !containerRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const newWidth = containerRect.right - e.clientX;
+      setPreviewWidth(Math.max(300, Math.min(newWidth, containerRect.width - 300)));
+    };
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
   const handleUpload = async () => {
     setLoading(true);
@@ -32,9 +61,9 @@ export default function MainPage({ user, onStartSend }: MainPageProps) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-57px)]">
+    <div ref={containerRef} className="flex h-[calc(100vh-57px)]">
       {/* Sidebar */}
-      <div className="w-48 border-r border-gray-700 p-4 flex flex-col gap-3">
+      <div className="w-48 shrink-0 border-r border-gray-700 p-4 flex flex-col gap-3">
         <button
           onClick={handleUpload}
           disabled={loading}
@@ -67,7 +96,7 @@ export default function MainPage({ user, onStartSend }: MainPageProps) {
       </div>
 
       {/* CSV Table */}
-      <div className="flex-1 border-r border-gray-700">
+      <div className="flex-1 min-w-[200px] border-r border-gray-700">
         {rows.length > 0 ? (
           <CsvTable rows={rows} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
         ) : (
@@ -77,8 +106,14 @@ export default function MainPage({ user, onStartSend }: MainPageProps) {
         )}
       </div>
 
-      {/* Email Preview */}
-      <div className="w-[450px]">
+      {/* Drag handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="w-1.5 shrink-0 bg-gray-700 hover:bg-blue-500 cursor-col-resize transition-colors"
+      />
+
+      {/* Email Preview - resizable */}
+      <div style={{ width: previewWidth }} className="shrink-0">
         <EmailPreview
           row={rows[selectedIndex] || null}
           index={selectedIndex}
