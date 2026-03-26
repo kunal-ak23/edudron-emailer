@@ -23,9 +23,11 @@ export async function sendEmail(
         contentType: 'HTML',
         content: htmlBody,
       },
-      toRecipients: [
-        { emailAddress: { address: to } },
-      ],
+      toRecipients: to
+        .split(';')
+        .map(addr => addr.trim())
+        .filter(addr => addr.length > 0)
+        .map(addr => ({ emailAddress: { address: addr } })),
     },
     saveToSentItems: true,
   };

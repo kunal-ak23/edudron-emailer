@@ -1,7 +1,7 @@
 {
   "name": "edudron-emailer",
   "productName": "Edudron Emailer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Bulk email sender for teams using Microsoft Outlook via Graph API",
   "main": ".vite/build/main.js",
   "private": true,
